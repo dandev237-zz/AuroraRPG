@@ -7,29 +7,31 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float walkMoveStopRadius = 0.2f;
 
-    private ThirdPersonCharacter mCharacter;   // A reference to the ThirdPersonCharacter on the object
-    private CameraRaycaster mRaycaster;
+    private ThirdPersonCharacter character;   // A reference to the ThirdPersonCharacter on the object
+    private CameraRaycaster raycaster;
     private Vector3 currentClickTarget;
 
     private void Start()
     {
-        mRaycaster = Camera.main.GetComponent<CameraRaycaster>();
-        mCharacter = GetComponent<ThirdPersonCharacter>();
+        raycaster = Camera.main.GetComponent<CameraRaycaster>();
+        character = GetComponent<ThirdPersonCharacter>();
         currentClickTarget = transform.position;
     }
 
     // Fixed update is called in sync with physics
     private void FixedUpdate()
     {
+        ProcessMouseMovement();
+    }
+
+    private void ProcessMouseMovement()
+    {
         if (Input.GetMouseButton(Utilities.LeftMouseButton))
         {
-            //Collider hitCollider = mRaycaster.hit.collider;
-            //print("Cursor raycast hit layer " + hitCollider.gameObject.name.ToString());
-
-            switch (mRaycaster.layerHit)
+            switch (raycaster.layerHit)
             {
                 case Layer.Walkable:
-                    currentClickTarget = mRaycaster.hit.point;
+                    currentClickTarget = raycaster.hit.point;
                     break;
 
                 case Layer.Enemy:
@@ -45,11 +47,13 @@ public class PlayerMovement : MonoBehaviour
         Vector3 playerToClickPoint = currentClickTarget - transform.position;
         if (playerToClickPoint.magnitude >= walkMoveStopRadius)
         {
-            mCharacter.Move(currentClickTarget - transform.position, false, false);
+            character.Move(currentClickTarget - transform.position, false, false);
         }
         else
         {
-            mCharacter.Move(Vector3.zero, false, false);
+            character.Move(Vector3.zero, false, false);
         }
+
+        currentClickTarget = transform.position;    //So that the character doesn't run without the left click button being held down
     }
 }

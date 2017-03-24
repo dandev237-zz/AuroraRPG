@@ -2,27 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(CameraRaycaster))]
 public class CursorAction : MonoBehaviour
 {
     [SerializeField] private Texture2D walkCursor = null;
     [SerializeField] private Texture2D attackCursor = null;
     [SerializeField] private Texture2D unknownCursor = null;
-    [SerializeField] private Vector2 cursorHotspot = new Vector2(96.0f, 96.0f);
+    [SerializeField] private Vector2 cursorHotspot = Vector2.zero;
 
     private CameraRaycaster raycaster;
     private Texture2D chosenCursorTexture = null;
-    private Layer previouslyHitLayer, layerHit;
+    private Layer lastLayerHit, currentLayerHit;
 
     private void Start()
     {
         raycaster = GetComponent<CameraRaycaster>();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        layerHit = raycaster.layerHit;
+        currentLayerHit = raycaster.layerHit;
 
-        if (!layerHit.Equals(previouslyHitLayer))
+        if (!currentLayerHit.Equals(lastLayerHit))
         {
             switch (raycaster.layerHit)
             {
@@ -46,6 +47,6 @@ public class CursorAction : MonoBehaviour
 
         Cursor.SetCursor(chosenCursorTexture, cursorHotspot, CursorMode.Auto);
 
-        previouslyHitLayer = layerHit;
+        lastLayerHit = currentLayerHit;
     }
 }
