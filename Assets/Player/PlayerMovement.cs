@@ -6,16 +6,17 @@ using UnityStandardAssets.Characters.ThirdPerson;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float walkMoveStopRadius = 0.2f;
+    [SerializeField] private float attackRange = 5.0f;
 
     private ThirdPersonCharacter character;   // A reference to the ThirdPersonCharacter on the object
     private CameraRaycaster raycaster;
-    private Vector3 currentClickTarget;
+    private Vector3 currentDestination, clickPoint;
 
     private void Start()
     {
         raycaster = Camera.main.GetComponent<CameraRaycaster>();
         character = GetComponent<ThirdPersonCharacter>();
-        currentClickTarget = transform.position;
+        currentDestination = transform.position;
     }
 
     // Fixed update is called in sync with physics
@@ -28,14 +29,15 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetMouseButton(Utilities.LeftMouseButton))
         {
+            clickPoint = raycaster.hit.point;
             switch (raycaster.layerHit)
             {
                 case Layer.Walkable:
-                    currentClickTarget = raycaster.hit.point;
+                    currentDestination = ShortDestination(clickPoint, walkMoveStopRadius);
                     break;
 
                 case Layer.Enemy:
-                    print("Not moving to an enemy!!");
+                    currentDestination = ShortDestination(clickPoint, attackRange);
                     break;
 
                 default:
@@ -44,16 +46,35 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        Vector3 playerToClickPoint = currentClickTarget - transform.position;
+        MoveToDestination();
+    }
+
+    private void MoveToDestination()
+    {
+        Vector3 playerToClickPoint = currentDestination - transform.position;
         if (playerToClickPoint.magnitude >= walkMoveStopRadius)
         {
-            character.Move(currentClickTarget - transform.position, false, false);
+            character.Move(playerToClickPoint, false, false);
         }
         else
         {
             character.Move(Vector3.zero, false, false);
         }
+    }
 
-        currentClickTarget = transform.position;    //So that the character doesn't run without the left click button being held down
+    private Vector3 ShortDestination(Vector3 clickPoint, float reductionFactor)
+    {
+        Vector3 shorteningVector = (clickPoint - transform.position).normalized * reductionFactor;
+        return clickPoint - shorteningVector;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.black;
+        Gizmos.DrawLine(transform.position, clickPoint);
+        Gizmos.DrawSphere(currentDestination, 0.1f);
+        Gizmos.DrawSphere(clickPoint, 0.2f);
+
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
