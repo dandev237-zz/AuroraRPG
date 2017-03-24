@@ -12,41 +12,38 @@ public class CursorAction : MonoBehaviour
 
     private CameraRaycaster raycaster;
     private Texture2D chosenCursorTexture = null;
-    private Layer lastLayerHit, currentLayerHit;
 
     private void Start()
     {
         raycaster = GetComponent<CameraRaycaster>();
+        raycaster.layerChangeObservers += ChangeCursorTexture;
     }
 
-    private void LateUpdate()
+    /// <summary>
+    /// Observer method, called only when CameraRaycaster notifies a change in the layer hit with its ray
+    /// </summary>
+    /// <param name="newLayer">The layer that has just been hit by the raycaster</param>
+    private void ChangeCursorTexture(Layer newLayer)
     {
-        currentLayerHit = raycaster.layerHit;
-
-        if (!currentLayerHit.Equals(lastLayerHit))
+        switch (newLayer)
         {
-            switch (raycaster.layerHit)
-            {
-                case Layer.Walkable:
-                    chosenCursorTexture = walkCursor;
-                    break;
+            case Layer.Walkable:
+                chosenCursorTexture = walkCursor;
+                break;
 
-                case Layer.Enemy:
-                    chosenCursorTexture = attackCursor;
-                    break;
+            case Layer.Enemy:
+                chosenCursorTexture = attackCursor;
+                break;
 
-                case Layer.RaycastEndStop:
-                    chosenCursorTexture = unknownCursor;
-                    break;
+            case Layer.RaycastEndStop:
+                chosenCursorTexture = unknownCursor;
+                break;
 
-                default:
-                    Debug.LogError("I don't know what cursor to show.");
-                    return;
-            }
+            default:
+                Debug.LogError("I don't know what cursor to show.");
+                return;
         }
 
         Cursor.SetCursor(chosenCursorTexture, cursorHotspot, CursorMode.Auto);
-
-        lastLayerHit = currentLayerHit;
     }
 }

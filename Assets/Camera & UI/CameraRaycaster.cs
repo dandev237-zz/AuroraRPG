@@ -4,27 +4,30 @@ public class CameraRaycaster : MonoBehaviour
 {
     public Layer[] layerPriorities = {
         Layer.Enemy,
-        Layer.Walkable
+        Layer.Walkable,
+        Layer.RaycastEndStop    //Temporary fix. TODO think about a better way to handle RaycastEndStop hits
     };
 
     //Keep variable private, but it will be visible in the inspector
     [SerializeField] private float distanceToBackground = 100f;
 
     private Camera viewCamera;
-
     private RaycastHit mHit;
+    private Layer mLayerHit;
 
     public RaycastHit hit
     {
         get { return mHit; }
     }
 
-    private Layer mLayerHit;
-
     public Layer layerHit
     {
         get { return mLayerHit; }
     }
+
+    public delegate void OnLayerChange(Layer newLayer);       //Delegate type
+
+    public event OnLayerChange layerChangeObservers;  //Observers set instance
 
     private void Start()
     {
@@ -40,14 +43,23 @@ public class CameraRaycaster : MonoBehaviour
             if (hit.HasValue)
             {
                 mHit = hit.Value;
-                mLayerHit = layer;
+                if (layerHit != layer)       //There has been a change in the layer hit by the ray
+                {
+                    mLayerHit = layer;
+                    layerChangeObservers(layer);
+                }
+
                 return;
             }
         }
 
-        // Otherwise return background hit
-        mHit.distance = distanceToBackground;
-        mLayerHit = Layer.RaycastEndStop;
+        //// Otherwise return background hit
+        //mHit.distance = distanceToBackground;
+        //if (layerHit != Layer.RaycastEndStop)
+        //{
+        //    mLayerHit = Layer.RaycastEndStop;
+        //    layerChangeObservers(layerHit);
+        //}
     }
 
     //Nullable value type (This function can return null)
