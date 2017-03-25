@@ -11,7 +11,6 @@ public class CameraFollow : MonoBehaviour
     {
         //Locate player object by tag
         player = GameObject.FindGameObjectWithTag(PlayerTag);
-        print(PlayerTag + " found!!");
     }
 
     //Called in LateUpdate because the player is moved inside Update
