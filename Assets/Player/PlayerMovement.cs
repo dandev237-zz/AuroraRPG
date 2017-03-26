@@ -1,71 +1,57 @@
 using System;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityStandardAssets.Characters.ThirdPerson;
 
+[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(AICharacterControl))]
 [RequireComponent(typeof(ThirdPersonCharacter))]
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float walkMoveStopRadius = 0.2f;
-    [SerializeField] private float attackRange = 5.0f;
+    private ThirdPersonCharacter character = null;   // A reference to the ThirdPersonCharacter on the object
+    private CameraRaycaster raycaster = null;
+    private AICharacterControl aiCharacterControl = null;
 
-    private ThirdPersonCharacter character;   // A reference to the ThirdPersonCharacter on the object
-    private CameraRaycaster raycaster;
     private Vector3 currentDestination, clickPoint;
+    private GameObject walkTarget = null;
 
     private void Start()
     {
         raycaster = Camera.main.GetComponent<CameraRaycaster>();
         character = GetComponent<ThirdPersonCharacter>();
+        aiCharacterControl = GetComponent<AICharacterControl>();
+
         currentDestination = transform.position;
+        walkTarget = new GameObject("WalkTarget");
+
+        //Register observer to mouse left click events
+        raycaster.notifyMouseClickObservers += OnMouseClick;
     }
 
     // Fixed update is called in sync with physics
     private void FixedUpdate()
     {
-        ProcessMouseMovement();
+        
     }
 
-    private void ProcessMouseMovement()
+    private void OnMouseClick(RaycastHit raycastHit, int layer)
     {
-        //if (Input.GetMouseButton(Utilities.LeftMouseButton))
-        //{
-        //    clickPoint = raycaster.hit.point;
-        //    switch (raycaster.layerHit)
-        //    {
-        //        case Layer.Walkable:
-        //            currentDestination = ShortDestination(clickPoint, walkMoveStopRadius);
-        //            break;
-
-        //        case Layer.Enemy:
-        //            currentDestination = ShortDestination(clickPoint, attackRange);
-        //            break;
-
-        //        default:
-        //            print("Unexpected layer found");
-        //            break;
-        //    }
-        //}
-
-        //MoveToDestination();
-    }
-
-    private void MoveToDestination()
-    {
-        Vector3 playerToClickPoint = currentDestination - transform.position;
-        if (playerToClickPoint.magnitude >= walkMoveStopRadius)
+        switch(layer)
         {
-            character.Move(playerToClickPoint, false, false);
-        }
-        else
-        {
-            character.Move(Vector3.zero, false, false);
-        }
-    }
+            case Utilities.WalkableLayer:
+                walkTarget.transform.position = raycastHit.point;
+                aiCharacterControl.SetTarget(walkTarget.transform);
+                break;
 
-    private Vector3 ShortDestination(Vector3 clickPoint, float reductionFactor)
-    {
-        Vector3 shorteningVector = (clickPoint - transform.position).normalized * reductionFactor;
-        return clickPoint - shorteningVector;
+            case Utilities.EnemyLayer:
+                GameObject enemy = raycastHit.collider.gameObject;
+                aiCharacterControl.SetTarget(enemy.transform);
+                break;
+
+            default:
+                Debug.LogWarning("Unknown layer clicked. Layer int: " + layer);
+                return;
+        }
     }
 
     private void OnDrawGizmos()
@@ -75,6 +61,6 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawSphere(currentDestination, 0.1f);
         Gizmos.DrawSphere(clickPoint, 0.2f);
 
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        //Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
