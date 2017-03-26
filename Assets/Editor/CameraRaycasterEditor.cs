@@ -23,8 +23,6 @@ public class CameraRaycasterEditor : Editor
             EditorGUI.indentLevel--;
         }
 
-        BindMaxRaycastDepth();
-
         serializedObject.ApplyModifiedProperties(); // De-serialize back to cameraRaycaster (and create undo point)
     }
 
