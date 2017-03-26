@@ -1,5 +1,5 @@
-﻿using UnityEditor;
-
+﻿using System;
+using UnityEditor;
 
 // TODO consider changing to a property drawer
 [CustomEditor(typeof(CameraRaycaster))]
@@ -22,6 +22,8 @@ public class CameraRaycasterEditor : Editor
             EditorGUI.indentLevel--;
         }
 
+        BindMaxRaycastDepth();
+
         serializedObject.ApplyModifiedProperties(); // De-serialize back to cameraRaycaster (and create undo point)
     }
 
@@ -42,6 +44,16 @@ public class CameraRaycasterEditor : Editor
         {
             var prop = serializedObject.FindProperty(string.Format("layerPriorities.Array.data[{0}]", i));
             prop.intValue = EditorGUILayout.LayerField(string.Format("Layer {0}:", i), prop.intValue);
+        }
+    }
+
+    private void BindMaxRaycastDepth()
+    {
+        float currentMaxRaycastDepth = serializedObject.FindProperty("maxRaycastDepth").floatValue;
+        float requiredMaxRaycastDepth = EditorGUILayout.FloatField("Max Raycast Depth", currentMaxRaycastDepth);
+        if(requiredMaxRaycastDepth != currentMaxRaycastDepth)
+        {
+            serializedObject.FindProperty("maxRaycastDepth").floatValue = requiredMaxRaycastDepth;
         }
     }
 }
