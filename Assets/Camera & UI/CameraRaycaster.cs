@@ -1,77 +1,83 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
+using System.Linq;
+using System.Collections.Generic;
 
 public class CameraRaycaster : MonoBehaviour
 {
-    public Layer[] layerPriorities = {
-        Layer.Enemy,
-        Layer.Walkable
-    };
+    // INSPECTOR PROPERTIES RENDERED BY CUSTOM EDITOR SCRIPT
+    [SerializeField] private int[] layerPriorities;
+    [SerializeField] private float maxRaycastDepth = 100.0f;
 
-    [SerializeField] private float distanceToBackground = 100f;
+    private int topPriorityLayerLastFrame = -1; // So get ? from start with Default layer terrain
 
-    private Camera viewCamera;
-    private RaycastHit mHit;
-    private Layer mLayerHit;
+    // Setup delegates for broadcasting layer changes to other classes
+    public delegate void OnCursorLayerChange(int newLayer);
+    public event OnCursorLayerChange notifyLayerChangeObservers;
 
-    public RaycastHit hit
-    {
-        get { return mHit; }
-    }
-
-    public Layer layerHit
-    {
-        get { return mLayerHit; }
-    }
-
-    public delegate void OnLayerChange(Layer newLayer);       //Delegate type
-
-    public event OnLayerChange layerChangeObservers;  //Observers set instance
-
-    private void Start()
-    {
-        viewCamera = Camera.main;
-    }
+    public delegate void OnClickPriorityLayer(RaycastHit raycastHit, int layerHit);
+    public event OnClickPriorityLayer notifyMouseClickObservers;
 
     private void Update()
     {
-        // Look for and return priority layer hit
-        foreach (Layer layer in layerPriorities)
+        // Check if pointer is over an interactable UI element
+        if (EventSystem.current.IsPointerOverGameObject())
         {
-            var hit = RaycastForLayer(layer);
-            if (hit.HasValue)
-            {
-                mHit = hit.Value;
-                if (layerHit != layer)       //There has been a change in the layer hit by the ray
-                {
-                    mLayerHit = layer;
-                    layerChangeObservers(layer);
-                }
-
-                return;
-            }
+            NotifyObserversIfLayerChanged(Utilities.UILayer);
+            return; // Stop looking for other objects
         }
 
-        // Otherwise return background hit
-        mHit.distance = distanceToBackground;
-        if (layerHit != Layer.RaycastEndStop)
+        // Raycast to max depth, every frame as things can move under mouse
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit[] raycastHits = Physics.RaycastAll(ray, maxRaycastDepth);
+
+        RaycastHit? priorityHit = FindTopPriorityHit(raycastHits);
+        if (!priorityHit.HasValue) // if hit no priority object
         {
-            mLayerHit = Layer.RaycastEndStop;
-            layerChangeObservers(layerHit);
+            NotifyObserversIfLayerChanged(Utilities.DefaultLayer); // broadcast default layer
+            return;
+        }
+
+        // Notify delegates of layer change
+        int layerHit = priorityHit.Value.collider.gameObject.layer;     //TODO consider changing this
+        NotifyObserversIfLayerChanged(layerHit);
+
+        // Notify delegates of highest priority game object under mouse when clicked
+        if (Input.GetMouseButton(Utilities.LeftMouseButton))
+        {
+            notifyMouseClickObservers(priorityHit.Value, layerHit);
         }
     }
 
-    //Nullable value type (This function can return null)
-    private RaycastHit? RaycastForLayer(Layer layer)
+    private void NotifyObserversIfLayerChanged(int newLayer)
     {
-        int layerMask = 1 << (int)layer; // See Unity docs for mask formation
-        Ray ray = viewCamera.ScreenPointToRay(Input.mousePosition);
-
-        RaycastHit hit; // used as an out parameter
-        bool hasHit = Physics.Raycast(ray, out hit, distanceToBackground, layerMask);
-        if (hasHit)
+        if (newLayer != topPriorityLayerLastFrame)
         {
-            return hit;
+            topPriorityLayerLastFrame = newLayer;
+            notifyLayerChangeObservers(newLayer);
         }
-        return null;
+    }
+
+    private RaycastHit? FindTopPriorityHit(RaycastHit[] raycastHits)
+    {
+        // Form list of layer numbers hit
+        List<int> layersOfHitColliders = new List<int>();
+        foreach (RaycastHit hit in raycastHits)
+        {
+            layersOfHitColliders.Add(hit.collider.gameObject.layer);
+        }
+
+        // Step through layers in order of priority looking for a gameobject with that layer
+        foreach (int layer in layerPriorities)
+        {
+            foreach (RaycastHit hit in raycastHits)
+            {
+                if (hit.collider.gameObject.layer == layer)
+                {
+                    return hit; // stop looking
+                }
+            }
+        }
+        return null; // because cannot use GameObject? nullable
     }
 }
