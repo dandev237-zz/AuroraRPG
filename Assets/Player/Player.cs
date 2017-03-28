@@ -25,5 +25,9 @@ public class Player : MonoBehaviour, IDamageable
     void IDamageable.TakeDamage(float damage)
     {
         currentHealthPoints = Mathf.Clamp(currentHealthPoints - damage, minHealthPoints, maxHealthPoints);
+        if(currentHealthPoints == minHealthPoints)
+        {
+            Destroy(gameObject);
+        }
     }
 }

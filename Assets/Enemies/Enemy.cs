@@ -15,6 +15,12 @@ public class Enemy : MonoBehaviour, IDamageable
     [SerializeField] private float attackRadius = 5.0f;
     [SerializeField] private float aggroRadius = 7.5f;
 
+    [SerializeField] private GameObject projectileObject;
+    [SerializeField] private GameObject projectileSpawn;
+    [SerializeField] private float damagePerShot = 6.0f;
+    [SerializeField] private float secondsBetweenShots = 0.5f;
+    private bool isAttacking = false;
+
     private void Start()
     {
         currentHealthPoints = maxHealthPoints;
@@ -25,10 +31,16 @@ public class Enemy : MonoBehaviour, IDamageable
     private void Update()
     {
         float distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
-        if (distanceToPlayer <= attackRadius)
+        if (distanceToPlayer <= attackRadius && !isAttacking)
         {
-            print(gameObject.name + " attacking Player!");
-            //TODO spawn projectile
+            isAttacking = true;
+            InvokeRepeating("SpawnProjectile", 0.0f, secondsBetweenShots);  //TODO switch to coroutine
+        }
+
+        if(distanceToPlayer > attackRadius)
+        {
+            CancelInvoke();
+            isAttacking = false;
         }
 
         if (distanceToPlayer <= aggroRadius)
@@ -39,6 +51,21 @@ public class Enemy : MonoBehaviour, IDamageable
         {
             aiCharacterControl.SetTarget(transform);
         }
+    }
+
+    private void SpawnProjectile()
+    {
+        GameObject firedProjectile = Instantiate(projectileObject, projectileSpawn.transform.position, Quaternion.identity);
+
+        //Set projectile damage
+        Projectile projectileComponent = firedProjectile.GetComponent<Projectile>();
+        projectileComponent.damageOnHit = damagePerShot;
+
+        //Set projectile direction and speed
+        Vector3 direction = (player.transform.position - projectileSpawn.transform.position).normalized;
+        float projectileSpeed = projectileComponent.projectileSpeed;
+
+        firedProjectile.GetComponent<Rigidbody>().velocity = direction * projectileSpeed;
     }
 
     public float healthAsPercentage
@@ -52,6 +79,10 @@ public class Enemy : MonoBehaviour, IDamageable
     void IDamageable.TakeDamage(float damage)
     {
         currentHealthPoints = Mathf.Clamp(currentHealthPoints - damage, minHealthPoints, maxHealthPoints);
+        if(currentHealthPoints == minHealthPoints)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnDrawGizmos()

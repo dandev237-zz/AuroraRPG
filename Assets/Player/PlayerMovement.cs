@@ -28,12 +28,6 @@ public class PlayerMovement : MonoBehaviour
         raycaster.notifyMouseClickObservers += OnMouseClick;
     }
 
-    // Fixed update is called in sync with physics
-    private void FixedUpdate()
-    {
-        
-    }
-
     private void OnMouseClick(RaycastHit raycastHit, int layer)
     {
         switch(layer)
@@ -52,15 +46,5 @@ public class PlayerMovement : MonoBehaviour
                 Debug.LogWarning("Unknown layer clicked. Layer int: " + layer);
                 return;
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        //Gizmos.color = Color.black;
-        //Gizmos.DrawLine(transform.position, clickPoint);
-        //Gizmos.DrawSphere(currentDestination, 0.1f);
-        //Gizmos.DrawSphere(clickPoint, 0.2f);
-
-        //Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
