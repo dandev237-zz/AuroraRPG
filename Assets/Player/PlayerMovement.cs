@@ -56,10 +56,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.black;
-        Gizmos.DrawLine(transform.position, clickPoint);
-        Gizmos.DrawSphere(currentDestination, 0.1f);
-        Gizmos.DrawSphere(clickPoint, 0.2f);
+        //Gizmos.color = Color.black;
+        //Gizmos.DrawLine(transform.position, clickPoint);
+        //Gizmos.DrawSphere(currentDestination, 0.1f);
+        //Gizmos.DrawSphere(clickPoint, 0.2f);
 
         //Gizmos.DrawWireSphere(transform.position, attackRange);
     }

@@ -12,7 +12,8 @@ public class Enemy : MonoBehaviour, IDamageable
 
     private AICharacterControl aiCharacterControl = null;
     private GameObject player = null;
-    private float detectionRadius = 5.0f;
+    [SerializeField] private float attackRadius = 5.0f;
+    [SerializeField] private float aggroRadius = 7.5f;
 
     private void Start()
     {
@@ -24,7 +25,13 @@ public class Enemy : MonoBehaviour, IDamageable
     private void Update()
     {
         float distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
-        if (distanceToPlayer <= detectionRadius)
+        if (distanceToPlayer <= attackRadius)
+        {
+            print(gameObject.name + " attacking Player!");
+            //TODO spawn projectile
+        }
+
+        if (distanceToPlayer <= aggroRadius)
         {
             aiCharacterControl.SetTarget(player.transform);
         }
@@ -45,5 +52,14 @@ public class Enemy : MonoBehaviour, IDamageable
     void IDamageable.TakeDamage(float damage)
     {
         currentHealthPoints = Mathf.Clamp(currentHealthPoints - damage, minHealthPoints, maxHealthPoints);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRadius);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, aggroRadius);
     }
 }
