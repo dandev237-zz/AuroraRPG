@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour, IDamageable
     private AICharacterControl aiCharacterControl = null;
     private GameObject player = null;
     [SerializeField] private float attackRadius = 5.0f;
-    [SerializeField] private float aggroRadius = 7.5f;
+    [SerializeField] private float chaseRadius = 7.5f;
 
     [SerializeField] private GameObject projectileObject;
     [SerializeField] private GameObject projectileSpawn;
@@ -44,7 +44,7 @@ public class Enemy : MonoBehaviour, IDamageable
             isAttacking = false;
         }
 
-        if (distanceToPlayer <= aggroRadius)
+        if (distanceToPlayer <= chaseRadius)
         {
             aiCharacterControl.SetTarget(player.transform);
         }
@@ -92,6 +92,6 @@ public class Enemy : MonoBehaviour, IDamageable
         Gizmos.DrawWireSphere(transform.position, attackRadius);
 
         Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(transform.position, aggroRadius);
+        Gizmos.DrawWireSphere(transform.position, chaseRadius);
     }
 }

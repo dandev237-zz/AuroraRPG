@@ -17,7 +17,7 @@ public class Projectile : MonoBehaviour {
         }
     }
 
-    [SerializeField] private float mDamageOnHit = 10.0f;
+    private float mDamageOnHit = 10.0f;
     public float damageOnHit
     {
         get
