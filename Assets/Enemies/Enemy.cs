@@ -19,6 +19,7 @@ public class Enemy : MonoBehaviour, IDamageable
     [SerializeField] private GameObject projectileSpawn;
     [SerializeField] private float damagePerShot = 6.0f;
     [SerializeField] private float secondsBetweenShots = 0.5f;
+    [SerializeField] private Vector3 aimOffset = new Vector3(0.0f, 1.0f, 0.0f);
     private bool isAttacking = false;
 
     private void Start()
@@ -62,7 +63,7 @@ public class Enemy : MonoBehaviour, IDamageable
         projectileComponent.damageOnHit = damagePerShot;
 
         //Set projectile direction and speed
-        Vector3 direction = (player.transform.position - projectileSpawn.transform.position).normalized;
+        Vector3 direction = (player.transform.position + aimOffset - projectileSpawn.transform.position).normalized;
         float projectileSpeed = projectileComponent.projectileSpeed;
 
         firedProjectile.GetComponent<Rigidbody>().velocity = direction * projectileSpeed;

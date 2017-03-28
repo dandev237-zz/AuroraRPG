@@ -12,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
     private CameraRaycaster raycaster = null;
     private AICharacterControl aiCharacterControl = null;
 
-    private Vector3 currentDestination, clickPoint;
     private GameObject walkTarget = null;
 
     private void Start()
@@ -21,7 +20,6 @@ public class PlayerMovement : MonoBehaviour
         character = GetComponent<ThirdPersonCharacter>();
         aiCharacterControl = GetComponent<AICharacterControl>();
 
-        currentDestination = transform.position;
         walkTarget = new GameObject("WalkTarget");
 
         //Register observer to mouse left click events
