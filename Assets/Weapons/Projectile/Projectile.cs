@@ -30,7 +30,7 @@ public class Projectile : MonoBehaviour {
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+	private void OnCollisionEnter(Collision other)
     {
         Component damageableComponent = other.gameObject.GetComponent(typeof(IDamageable));
         if (damageableComponent)
