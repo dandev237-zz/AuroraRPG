@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    private const string PlayerTag = "Player";
     private GameObject player;
 
     private void Start()
     {
-        //Locate player object by tag
-        player = GameObject.FindGameObjectWithTag(PlayerTag);
+        player = GameObject.FindGameObjectWithTag(Utilities.PlayerTag);
     }
 
     //Called in LateUpdate because the player is moved inside Update

@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Linq;
 using System.Collections.Generic;
 
 public class CameraRaycaster : MonoBehaviour
 {
-    // INSPECTOR PROPERTIES RENDERED BY CUSTOM EDITOR SCRIPT
     [SerializeField] private int[] layerPriorities;
     [SerializeField] private float maxRaycastDepth = 100.0f;
 
@@ -20,7 +18,7 @@ public class CameraRaycaster : MonoBehaviour
 
     private void Update()
     {
-        // Check if pointer is over an interactable UI element
+        //EventSystem object = interactable UI element
         if (EventSystem.current.IsPointerOverGameObject())
         {
             NotifyObserversIfLayerChanged(Utilities.UILayer);
@@ -31,18 +29,17 @@ public class CameraRaycaster : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] raycastHits = Physics.RaycastAll(ray, maxRaycastDepth);
 
+		//Check for priority layer hit
         RaycastHit? priorityHit = FindTopPriorityHit(raycastHits);
-        if (!priorityHit.HasValue) // if hit no priority object
+        if (!priorityHit.HasValue)
         {
             NotifyObserversIfLayerChanged(Utilities.DefaultLayer); // broadcast default layer
             return;
         }
 
-        // Notify delegates of layer change
         int layerHit = priorityHit.Value.collider.gameObject.layer;     //TODO consider changing this
         NotifyObserversIfLayerChanged(layerHit);
 
-        // Notify delegates of highest priority game object under mouse when clicked
         if (Input.GetMouseButton(Utilities.LeftMouseButton))
         {
             notifyMouseClickObservers(priorityHit.Value, layerHit);
@@ -74,10 +71,10 @@ public class CameraRaycaster : MonoBehaviour
             {
                 if (hit.collider.gameObject.layer == layer)
                 {
-                    return hit; // stop looking
+                    return hit;
                 }
             }
         }
-        return null; // because cannot use GameObject? nullable
+        return null; // because we cannot use GameObject? nullable
     }
 }

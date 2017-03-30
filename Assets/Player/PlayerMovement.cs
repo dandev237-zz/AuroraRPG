@@ -8,7 +8,7 @@ using UnityStandardAssets.Characters.ThirdPerson;
 [RequireComponent(typeof(ThirdPersonCharacter))]
 public class PlayerMovement : MonoBehaviour
 {
-    private ThirdPersonCharacter character = null;   // A reference to the ThirdPersonCharacter on the object
+    private ThirdPersonCharacter character = null;
     private CameraRaycaster raycaster = null;
     private AICharacterControl aiCharacterControl = null;
 
@@ -26,6 +26,11 @@ public class PlayerMovement : MonoBehaviour
         raycaster.notifyMouseClickObservers += OnMouseClick;
     }
 
+	/// <summary>
+	/// Observer method, called only when the player clicks the left mouse button
+	/// </summary>
+	/// <param name="raycastHit">Struct containing data regarding the raycast hit</param>
+	/// <param name="layer">ID of the layer hit</param>
     private void OnMouseClick(RaycastHit raycastHit, int layer)
     {
         switch(layer)

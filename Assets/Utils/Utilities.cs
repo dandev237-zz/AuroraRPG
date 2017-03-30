@@ -9,5 +9,7 @@
     public const int WalkableLayer = 8;
     public const int EnemyLayer = 9;
     public const int UnwalkableLayer = 10;
-    
+
+	//Tags
+	public const string PlayerTag = "Player";
 }

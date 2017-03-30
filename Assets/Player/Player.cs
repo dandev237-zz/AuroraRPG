@@ -17,20 +17,20 @@ public class Player : MonoBehaviour, IDamageable
 
     private GameObject currentTarget;
 
-    private void Start()
+	public float healthAsPercentage
+	{
+		get
+		{
+			return currentHealthPoints / (float)maxHealthPoints;
+		}
+	}
+
+	private void Start()
     {
         currentHealthPoints = maxHealthPoints;
         raycaster = Camera.main.GetComponent<CameraRaycaster>();
 
         raycaster.notifyMouseClickObservers += OnMouseClick;
-    }
-
-    public float healthAsPercentage
-    {
-        get
-        {
-            return currentHealthPoints / (float)maxHealthPoints;
-        }
     }
 
     private void OnMouseClick(RaycastHit hit, int layer)
@@ -43,9 +43,8 @@ public class Player : MonoBehaviour, IDamageable
 
             Component damageableComponent = currentTarget.GetComponent(typeof(IDamageable));
 
-            //Check if enemy is in range
             bool enemyIsInRange = Vector3.Distance(enemy.transform.position, transform.position) <= meleeAttackRange;
-                
+            
             if (damageableComponent && Time.time - lastHitTime > timeBetweenHits && enemyIsInRange)
             {
                 (damageableComponent as IDamageable).TakeDamage(meleeDamage);
