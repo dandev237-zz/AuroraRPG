@@ -415,11 +415,6 @@ Prefab:
       propertyPath: m_LocalRotation.w
       value: -0.110415146
       objectReference: {fileID: 0}
-    - target: {fileID: 136731484099046142, guid: b35adbbace58a1f4687a22379f7d0a81,
-        type: 2}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b35adbbace58a1f4687a22379f7d0a81, type: 2}
   m_IsPrefabParent: 0
@@ -848,6 +843,24 @@ Transform:
   m_PrefabParentObject: {fileID: 4141497317585294, guid: 930d1c6fb3377d041ab9dd1041271f81,
     type: 2}
   m_PrefabInternal: {fileID: 1376014683}
+--- !u!1 &1963998758 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1126557298857760, guid: b35adbbace58a1f4687a22379f7d0a81,
+    type: 2}
+  m_PrefabInternal: {fileID: 1055943551}
+--- !u!114 &1963998759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1963998758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43447eeef8842bc4087af3a849dc7ba4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mStatType: 1
+  mBaseValue: 10
 --- !u!4 &1989444257 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4954103700403958, guid: c00c19c9e32384240b170b8c3d442c2c,
